@@ -11,8 +11,19 @@
   NarrowItDownController.$inject = ['MenuSearchService'];
   function NarrowItDownController(MenuSearchService){
     var selection = this;
+    selection.found = [];
     selection.searchTerm = '';
-    selection.found = MenuSearchService.getMatchedMenuItems(selection.searchTerm);
+    selection.getSearchItems = function(){
+    MenuSearchService.getMatchedMenuItems(selection.searchTerm).then(function(results){
+      selection.found = results;
+
+    })
+
+  };
+
+    selection.removeItem = function(itemIndex) {
+      selection.found.splice(itemIndex, 1);
+  };
   }
 
   MenuSearchService.$inject = ['$http', 'ApiBasePath'];
@@ -26,13 +37,17 @@
       });
       return response.then(function(result){
         var selectedItem = searchTerm.toLowerCase();
-        var foundItems = result.data.menu_items.filter(function(item){
+        console.log(searchTerm);
+        var foundItems = [];
+        foundItems = result.data.menu_items.filter(function(item){
           return item.description.toLowerCase().indexOf(selectedItem) !== -1;
         });
+        for(var i = 0; i < foundItems.length; i++){
+          console.log(foundItems[i].name + " " + foundItems[i].description);
+        }
 
         return foundItems;
       });
-
     };
 
   }
@@ -50,19 +65,5 @@
     return searchResults;
 
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 })();
